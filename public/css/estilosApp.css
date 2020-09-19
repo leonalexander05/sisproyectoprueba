@@ -1,0 +1,11 @@
+label.error{
+	color: #d84a4a;
+}
+
+input.error{
+	border-color: crimson;
+}
+
+input.valid{
+	border:2px solid #14944d;
+}

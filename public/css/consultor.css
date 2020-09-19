@@ -1,0 +1,19 @@
+.validarFechasError{
+	border:2px solid red;
+}
+
+
+#tablaFiltro2 td{
+	padding: 2px;
+}
+
+#trCabecera{
+  font-weight: bold;
+  font-style: italic;
+}
+
+.table tfoot tr{
+	font-weight: bold;
+  font-style: italic;
+}
+
