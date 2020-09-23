@@ -122,7 +122,7 @@
 	      </div>
 	      <div class="modal-body">
 	      
-	        <div id="tablaGanancia"></div>
+	        <div id="tablaGanancia" class="table-responsive"></div>
 	        
 	      </div>
 	      
@@ -142,7 +142,6 @@
 	        <h2 class="modal-title" id="graficosModalLongTitle"></h2>
 	      </div>
 	      <div class="modal-body" >
-	      <div id="chartContainer" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>  
 	      <figure class="highcharts-figure" id="containerGrafico">
 		    <div id="container"></div>
 		  </figure>   
@@ -161,8 +160,6 @@
 		{!!Html::script('js/exporting.js')!!}
 		{!!Html::script('js/export-data.js')!!}
 		{!!Html::script('js/accessibility.js')!!}
-
-		{!!Html::script('js/camvasjs.js')!!}
 		{!!Html::script('js/consultor2.js')!!}
 		
 @endsection
