@@ -263,8 +263,7 @@ function graficotorta () {
     var token = $("#token").val();
     $("#graficos").empty();
     $("#graficosModalLongTitle").empty();
-    $("#chartContainer").show();
-    $("#containerGrafico").hide();
+    $("#containerGrafico").show();
 
             var fechaDesde = $("#anoDesde").val()+'-'+$("#mesDesde").val()+'-01';
             var fechaHasta = $("#anoHasta").val()+'-'+$("#mesHasta").val()+'-31';
@@ -290,39 +289,52 @@ function graficotorta () {
                     })
                     .done(function(res) {
                           datos = res; 
-                          for (var i = 0; i <= datos.length-1; i++) {
+                            for (var i = 0; i <= datos.length-1; i++) {
                                 if (datos[i]['valorT']>0) {
                                     valorT= datos[i]['valorT'];
                                 }else{
                                     valorT= 0;
                                 }
-                                datos2.push({y: datos[i]['valorT'], label:datos[i]['Usuario']});
-                    }
-                          chart.render();     
+                                datos2.push({name:datos[i]['Usuario'],y: Number.parseFloat(valorT)});
+                            }   
+
+                    Highcharts.chart('container', {
+                        chart: {
+                            plotBackgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false,
+                            type: 'pie'
+                        },
+                        title: {
+                            text: 'Ganancias Netas'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        accessibility: {
+                            point: {
+                                valueSuffix: '%'
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                showInLegend: true
+                            }
+                        },
+                        series: [{
+                            name: 'Porcentaje',
+                            colorByPoint: true,
+                            data: datos2
+                        }]
+                    });
                     });
 
-                    chart = new CanvasJS.Chart("chartContainer", {
-                                animationEnabled: true,
-                                exportEnabled: true,
-                                exploded: true,
-                                title: {
-                                    text: "Ganancias Netas"
-                                },
-                                legend:{
-                                    cursor: "pointer",
-                                    itemclick: explodePie
-                                },
-                                data: [{
-                                    type: "pie",
-                                    startAngle: 240,
-                                    showInLegend: true,
-                                    yValueFormatString: "##0.00",
-                                    indexLabel: "{label} {y}",
-                                    dataPoints: datos2
-                                            
-                                }]
 
-                    });
         
             }else{
                 alert("Por Favor Seleccionar un Consultor en la lista");
@@ -336,11 +348,12 @@ function graficobarra(argument) {
     periodos = [];
     periodosMeses = [];
     series = [];
+    average = [];
     var mes;
     var datos2 = [];
     var token = $("#token").val();
     var numero;
-    $("#chartContainer").hide();
+
     $("#containerGrafico").show();
     $("#graficos").empty();
     $("#graficosModalLongTitle").empty();
@@ -393,34 +406,52 @@ function graficobarra(argument) {
                     .done(function(res) {
                           datos = res; 
                           usuario ='';
+                          salario_bruto=0;
+                          promedio= 0;
+                          nombre_usuario='';
+                          salario_brutoT=0;
+
                           for (var j = 0 ;j <= datosUsuario.length-1; j++) {
-                  
                             for (var i = 0; i <= datos.length-1; i++) {
                                 if (datos[i]['Usuario']==datosUsuario[j]['usuario']) {
+                                    nombre_usuario=datos[i]['nombre_usuario'];
                                     valorT=(datos[i]['valorT']>0)?datos[i]['valorT']:0;
-                                    datos2.push(valorT) 
+                                    salario_bruto=(datos[i]['salario_bruto']>0)?datos[i]['salario_bruto']:0;
+                                    datos2.push(Number.parseFloat(valorT)); 
                                 }
+                                salario_brutoT +=parseFloat(salario_bruto);
                             }
+                            salario_brutoT +=parseFloat(salario_bruto);
+                            promedio = salario_brutoT/datosUsuario.length;
 
-                            series.push({'name': datosUsuario[j]['usuario'],'data':datos2});
+                            usuario = (nombre_usuario=='')?datosUsuario[j]['usuario']:nombre_usuario;
+                            series.push({type: 'column','name': usuario,'data':datos2});
+                            
                             datos2 = [];
                           }
+
+                          for (var i = 0; i <= periodosMeses.length-1; i++) {
+                              average.push(promedio);
+                          }
                           
-    
+                          series.push({type: 'spline',
+                                    name: 'Average',
+                                    data: average,
+                                    marker: {
+                                        lineWidth: 2,
+                                        lineColor: Highcharts.getOptions().colors[3],
+                                        fillColor: 'white'
+                                    }});
+
                           Highcharts.chart('container', {
-                                chart: {
-                                    type: 'column'
-                                },
                                 title: {
-                                    text: 'Ganancias Netas'
-                                },
-                                subtitle: {
                                     text: 'Ganancias netas por usuario'
                                 },
                                 xAxis: {
                                     categories: periodosMeses,
                                     crosshair: true
                                 },
+
                                 yAxis: {
                                     min: 0,
                                     title: {
@@ -435,15 +466,24 @@ function graficobarra(argument) {
                                     shared: true,
                                     useHTML: true
                                 },
-                                plotOptions: {
-                                    column: {
-                                        pointPadding: 0.5,
-                                        borderWidth: 0
-                                    }
+                                labels: {
+                                    items: [{
+                                        html: '',
+                                        style: {
+                                            left: '50px',
+                                            top: '18px',
+                                            color: ( // theme
+                                                Highcharts.defaultOptions.title.style &&
+                                                Highcharts.defaultOptions.title.style.color
+                                            ) || 'black'
+                                        }
+                                    }]
                                 },
                                 series: series
-                          });         
-                    });
+                            });
+                          
+    
+                          });
                     
             }else{
                 alert("Por Favor Seleccionar un Consultor en la lista");
