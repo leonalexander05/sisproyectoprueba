@@ -105,8 +105,10 @@ class ConsultorController extends Controller
         $datos = $request->get('datos');
         $periodos = $request->get('periodos');
         $var1= array();
+        $nombre_usuario;
            
         foreach ($datos as $dato) {
+
                 foreach ($periodos as $periodo) {
                     $fechaDesde =  '2007/'.$periodo.'01';
                     $fechaHasta= '2007/'.$periodo.'/31';
@@ -128,10 +130,22 @@ class ConsultorController extends Controller
                          $valorT=0;
                     }
 
+                    $costoFijo = DB::table('cao_salario')
+                    ->join('cao_usuario', 'cao_salario.co_usuario', '=', 'cao_usuario.co_usuario')
+                    ->where('cao_salario.co_usuario', '=', $dato["usuario"])
+                    ->select('cao_salario.brut_salario','cao_usuario.no_usuario')
+                    ->first();
+                    if (is_object($costoFijo)) {
+                       $no_usuario= $costoFijo->no_usuario;
+                       $brut_salario= $costoFijo->brut_salario;
+                    }else{
+                        $no_usuario=0;
+                        $brut_salario=0;
+                    }
 
+                    $nombre_usuario = ($no_usuario!= 0 or $no_usuario != null)?  $no_usuario:$dato["usuario"];
 
-                     
-                    array_push($var1, ['Usuario'=> $dato["usuario"],'valorT'=>$valorT,'periodo'=>$periodo]);
+                    array_push($var1, ['Usuario'=>  $dato["usuario"],'valorT'=>$valorT,'periodo'=>$periodo,'salario_bruto'=> $brut_salario,'nombre_usuario'=> $nombre_usuario]);
                 }
         }  
   
@@ -234,10 +248,9 @@ class ConsultorController extends Controller
     {
             $var1= array();
             $datos = $request->get('datos');
-            
-
             $fechaDesde =  str_replace('-', '/', $request->get('fechaDesde'));
             $fechaHasta= str_replace('-', '/',$request->get('fechaHasta') );
+            $nombre_usuario;
         foreach ($datos as $dato) {
 
                 $Consultores = DB::table('cao_os')
@@ -254,7 +267,21 @@ class ConsultorController extends Controller
                      $valorT=0;
                 }
 
-                array_push($var1, ['Usuario'=> $dato["co_usuario"],'valorT'=>$valorT]);
+                $costoFijo = DB::table('cao_salario')
+                    ->join('cao_usuario', 'cao_salario.co_usuario', '=', 'cao_usuario.co_usuario')
+                    ->where('cao_salario.co_usuario', '=', $dato["co_usuario"])
+                    ->select('cao_salario.brut_salario','cao_usuario.no_usuario')
+                    ->first();
+                    if (is_object($costoFijo)) {
+                       $no_usuario= $costoFijo->no_usuario;
+                       $brut_salario= $costoFijo->brut_salario;
+                    }else{
+                        $no_usuario=0;
+                        $brut_salario=0;
+                    }
+                $nombre_usuario = ($no_usuario!= 0 or $no_usuario != null)?  $no_usuario:$dato["co_usuario"];
+
+                array_push($var1, ['Usuario'=> $nombre_usuario,'valorT'=>$valorT]);
 
         }    
         
